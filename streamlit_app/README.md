@@ -8,18 +8,17 @@
 
 Use python venv to use defined dependencies.
 
-python -m venv venv
-
-source venv/bin/activate
+    python -m venv venv
+    source venv/bin/activate
 
 to activate the virtual environment.
 
 You can then use the provided requirements.txt to populate the required dependencies in your virtual environment.
 
-pip install -r requirements.txt
+    pip install -r requirements.txt
 
 ## Running the application
 
 After you have activated the virtual environment and the packages listed in requirements.txt are installed, you can launch the streamlit application as follows:
 
-streamlit run FAIR_MS_Library_Editor.py 
+    streamlit run FAIR_MS_Library_Editor.py 
