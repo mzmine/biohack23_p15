@@ -15,4 +15,4 @@ class ValidationPipeline:
 
     def run(spectrum):
         #here run all the checks and modifications
-        return instructions #{'quality':, 'metadata adduct': {'previous':..., 'updated':....}}
+        return modifications #{'quality':, 'metadata adduct': {'previous':..., 'updated':....}}
