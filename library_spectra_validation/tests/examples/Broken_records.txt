@@ -1,0 +1,19 @@
+I clean all the 12 mass spectra in the "test_case_correct.mgf", in terms of 
+--> adding inchikey
+--> cleaning the inchi
+--> adding formula
+
+So all mass spectra in the "test_case_wrong.mgf" are missing formula and inchikey
+
+mass spectrum 1: no change
+mass spectrum 2: wrong adduct
+mass spectrum 3: wrong pepmass (precursor)
+mass spectrum 4: wrong smiles
+mass spectrum 5: missing adduct
+mass spectrum 6: no change (share the same compound name as mass spectrum 5, but different adduct)
+mass spectrum 7: missing adduct
+mass spectrum 8: missing adduct
+mass spectrum 9: no change
+mass spectrum 10: missing compound name and adduct
+mass spectrum 11: no change
+mass spectrum 12: wroing inchi
