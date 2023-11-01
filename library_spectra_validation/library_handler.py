@@ -35,8 +35,8 @@ class LibraryHandler:
                 self.nonvalidated_spectra.remove(spectrum_id)
         else:
             self.nonvalidated_spectra.append(spectrum_id)
-            if spectrum_id in self.nonvalidated_spectra:
-                self.nonvalidated_spectra.remove(spectrum_id)
+            if spectrum_id in self.validated_spectra:
+                self.validated_spectra.remove(spectrum_id)
 
     def pass_user_validation_info(self, spectrum_id):
         '''
