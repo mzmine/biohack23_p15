@@ -11,6 +11,7 @@ Add index handling - when a spectrum is processed, its id is added to the corres
 import logging
 from typing import Iterable, List, Optional, Union
 from matchms.filtering.SpectrumProcessor import SpectrumProcessor
+from matchms.logging_functions import reset_matchms_logger, _init_logger
 
 logger = logging.getLogger("matchms")
 
@@ -84,9 +85,27 @@ class SpectrumValidator(SpectrumProcessor):
             raise TypeError("No filters to process")
         failed_requirements = []
         for filter_func in self.filters:
-            # todo capture logging
-            logging_message = ""
-            spectrum_out = filter_func(spectrum)
+            with CaptureLogContext as logger_capture:
+                spectrum_out = filter_func(spectrum)
             if spectrum_out is None:
-                failed_requirements += logging_message
+                failed_requirements += logger_capture
         return failed_requirements
+
+
+import sys
+class CaptureLogContext:
+    def __init__(self, logger_name="matchms"):
+        _init_logger()
+        self.logger_name = logger_name
+
+    def __enter__(self):
+        self.logger = logging.getLogger(self.logger_name)
+        self.log_capture = []
+        self.handler = logging.StreamHandler(sys.stdout)
+        self.handler.setLevel(logging.INFO)  # Adjust the log level as needed
+        self.handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(module)s:%(message)s'))
+        self.logger.addHandler(self.handler)
+        return self.log_capture
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.logger.removeHandler(self.handler)
