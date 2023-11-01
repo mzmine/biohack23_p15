@@ -69,7 +69,29 @@ class LibraryHandler:
         failed_requirements = self.failed_requirements[spectrum_id]
 
         return modifications, failed_requirements, self.spectra[spectrum_id]
-    
+
+    def approve_repair(self, spectrum_id, field_name):
+        """Accepts every modification done to a field_name"""
+        # Accepts every modification so far.
+        for modification in self.modifications[spectrum_id]:
+            if modification.metadata_field == field_name:
+                modification.validated_by_user = True
+
+    def approve_all_repairs(self, spectrum_id):
+        """Accepts all modifications done for a spectrum"""
+        for modification in self.modifications[spectrum_id]:
+            modification.validated_by_user = True
+
+    # def decline_last_repair(self, spectrum_id, field_name):
+    #     """Undo the last modification made to a field"""
+    #     for modification in self.modifications[spectrum_id]:
+    #         # Checks if it is the correct metadata field and if it was the last changed made
+    #         if modification.metadata_field == field_name and modification.after == self.spectra[spectrum_id].get(field_name):
+    #             # todo remove modification from modifications
+    #             # todo update spectrum.
+    #     # Declines last repair
+
+        pass
     def user_approve_repair(self, field_name, approved_all: bool, rejected_all: bool, spectrum_id):
         '''
         This function allows user to accept or decline all or part of modifications
