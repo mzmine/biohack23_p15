@@ -1,5 +1,6 @@
 from matchms.importing import load_spectra
 from matchms.filtering.SpectrumProcessor import SpectrumProcessor
+from filters import PRIMARY_FILTERS
 
 class LibraryHandler:
     """Stores the 3 different types of spectra. Correct, repaired, wrong.
@@ -7,7 +8,8 @@ class LibraryHandler:
 
     def __init__(self, f, pipeline):
         #todo modify default pipeline 
-        metadata_field_harmonization = SpectrumProcessor(predefined_pipeline="default")
+        metadata_field_harmonization = SpectrumProcessor(predefined_pipeline=None,
+                                                         additional_filters=PRIMARY_FILTERS)
         self.spectra = metadata_field_harmonization.process_spectrums(load_spectra(f))
         self.pipeline = pipeline
         self.spectra_dictionary = {
