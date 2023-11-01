@@ -83,6 +83,7 @@ class SpectrumValidator(SpectrumProcessor):
             "require_parent_mass_match_smiles": ["smiles", "parent_mass"]
         }
         # todo require adduct, precursor mz and parent mass match.
+        # todo add all the checks for formatting. That everything is filled and of the expected format.
         super().__init__(predefined_pipeline=None,
                          additional_filters=("require_precursor_mz",
                                              "require_valid_annotation",
