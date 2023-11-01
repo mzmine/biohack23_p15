@@ -20,6 +20,7 @@ class Modification:
         self.metadata_field = metadata_field
         self.before = before
         self.after = after
+        # self.original =
         self.logging_message = logging_message
         self.validated_by_user = validated_by_user
 
@@ -40,7 +41,7 @@ def find_modifications(spectrum_old, spectrum_new, logging_message: str):
     return modifications
 
 
-class SpectrumValidator(SpectrumProcessor):
+class SpectrumRepairer(SpectrumProcessor):
     def __init__(self, predefined_pipeline: Optional[str] = 'default',
                  additional_filters: Iterable[Union[str, List[dict]]] = ()):
         super().__init__(predefined_pipeline,
@@ -61,8 +62,31 @@ class SpectrumValidator(SpectrumProcessor):
             modifications += find_modifications(spectrum_old=spectrum,
                                                 spectrum_new=spectrum_out,
                                                 logging_message=logging_message)
-            # todo Think about what to do here
             if spectrum_out is None:
-                break
+                raise AttributeError("SpectrumRepairer is only expected to repair spectra, not set to None")
             spectrum = spectrum_out
         return modifications
+
+
+class SpectrumValidator(SpectrumProcessor):
+    def __init__(self):
+        # todo add the fields each requirement checks.
+        fields_checked_by_filter = {filter_name: [fields_checked]}
+        super().__init__(predefined_pipeline=None,
+                         additional_filters=list(fields_checked_by_filter.keys()))
+
+    def process_spectrum(self, spectrum,
+                         processing_report=None):
+        raise AttributeError("process spectrum is not a valid method of SpectrumValidator")
+
+    def process_spectrum_store_failed_filters(self, spectrum) -> List[Modification]:
+        if not self.filters:
+            raise TypeError("No filters to process")
+        failed_requirements = []
+        for filter_func in self.filters:
+            # todo capture logging
+            logging_message = ""
+            spectrum_out = filter_func(spectrum)
+            if spectrum_out is None:
+                failed_requirements += logging_message
+        return failed_requirements
