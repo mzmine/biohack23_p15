@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from matchms.importing import load_from_mgf
+from tempfile import NamedTemporaryFile
 
 
 st.set_page_config(
@@ -17,22 +18,30 @@ st.set_page_config(
 st.markdown("## File Import (.mgf)")
 st.markdown("Please select an mgf to upload.")
 
-uploaded_file = st.file_uploader("Choose a file", )
+uploaded_file = st.file_uploader("Choose a file", type = ".mgf")
+st.set_option('deprecation.showfileUploaderEncoding', False)
+    
+
+
 if uploaded_file is not None:
     print(uploaded_file)
     st.session_state['uploaded_file'] = uploaded_file
 
 if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is not None:
     print("Uploaded file:", st.session_state['uploaded_file'])
-    uploaded_file = st.session_state['uploaded_file']
+    #uploaded_file = st.session_state['uploaded_file']
     with st.spinner('Loading data...'):
         datasets = {}
         if 'datasets' in st.session_state:
             datasets = st.session_state['datasets']
         else:
             st.session_state['datasets'] = datasets
-        
-        spectra = list(load_from_mgf(uploaded_file))
+
+    with NamedTemporaryFile(dir='.', suffix='.mgf') as f:
+        f.write(uploaded_file.getbuffer())
+        spectra_temp = load_from_mgf(f.name) 
+        #spectra_temp = load_from_mgf(uploaded_file, "wb")
+        spectra = list(spectra_temp)
         df_spectra = pd.DataFrame({"spectrum": spectra})
 
         
