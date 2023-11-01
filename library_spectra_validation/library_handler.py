@@ -20,6 +20,27 @@ class LibraryHandler:
 
         self.initial_run()
 
+    def initial_run(self):
+        for spectrum_id in range(len(self.spectra)):
+            spectrum = self.spectra[spectrum_id]
+            modifications, spectrum = self.spectrum_repairer.process_spectrum_store_modifications(spectrum)
+            self.modifications[spectrum_id] = modifications
+
+            self.failed_requirements[spectrum_id] = self.spectrum_validator.process_spectrum_store_failed_filters(
+                spectrum)
+            self.update_spectra_quality_lists(spectrum_id)
+            self.spectra[spectrum_id] = spectrum
+
+        # iterate over all failed requirements
+        # it's almost streamlit
+        # for the dashboard run should use spectrum id
+        # for spectrum_id in range(len(self.spectra)):
+        #     if len(self.failed_requirements[spectrum_id]) != 0:
+        #         self.pass_user_validation_info(spectrum_id)
+        #         #todo should we grab here state variable from streamlit - accept or change
+        #         # self.user_approve_repair(spectrum_id)
+        #         # self.user_metadat_change(spectrum_id)
+
     def update_spectra_quality_lists(self, spectrum_id):
         """Will update validated_spectra and nonvalidated_spectra list for this spectrum_id"""
         valid_spectrum = True
@@ -38,9 +59,9 @@ class LibraryHandler:
             if spectrum_id in self.validated_spectra:
                 self.validated_spectra.remove(spectrum_id)
 
-    def pass_user_validation_info(self, spectrum_id):
+    def return_user_validation_info(self, spectrum_id):
         '''
-        This function is called only for nonvalidated spectra
+        Returns all info related to spectrum_id
         '''
         assert spectrum_id in self.nonvalidated_spectra
 
@@ -97,27 +118,6 @@ class LibraryHandler:
             self.modifications[spectrum_id] = self.spectrum_repairer.process_spectrum_store_modifications(self.spectra[spectrum_id])
             self.failed_requirements[spectrum_id] = self.spectrum_validator.process_spectrum_store_failed_filters(self.spectra[spectrum_id])
 
-    def initial_run(self):
-        #first check
-        for spectrum_id in range(len(self.spectra)):
-            spectrum = self.spectra[spectrum_id]
-            modifications, spectrum = self.spectrum_repairer.process_spectrum_store_modifications(spectrum)
-            self.modifications[spectrum_id] = modifications
-
-            self.failed_requirements[spectrum_id] = self.spectrum_validator.process_spectrum_store_failed_filters(
-                spectrum)
-            self.update_spectra_quality_lists(spectrum_id)
-            self.spectra[spectrum_id] = spectrum
-
-        # iterate over all failed requirements
-        # it's almost streamlit
-        # for the dashboard run should use spectrum id
-        # for spectrum_id in range(len(self.spectra)):
-        #     if len(self.failed_requirements[spectrum_id]) != 0:
-        #         self.pass_user_validation_info(spectrum_id)
-        #         #todo should we grab here state variable from streamlit - accept or change
-        #         # self.user_approve_repair(spectrum_id)
-        #         # self.user_metadat_change(spectrum_id)
 
     
         
