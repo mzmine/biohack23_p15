@@ -17,7 +17,7 @@ public class App {
     
     public static void main(String[] args) {
         try {
-            new MsLibraryReader().read(new File("/home/nilshoffmann/Projects/github.com/nilshoffmann/biohack23_p15/library_spectra_validation/tests/examples/test_case_correct.mgf"));
+            new MsLibraryReader().read(new File("/home/nilshoffmann/Projects/github.com/nilshoffmann/biohack23_p15/lipid_validation/mslibrary-lipid-validator/app/src/main/resources/PNNL-LIPIDS-NEGATIVE-small.mgf"));
         } catch (IOException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedFormatException ex) {
