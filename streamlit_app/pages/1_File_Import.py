@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
+from matchms.importing import load_from_mgf
+
 
 st.set_page_config(
     layout="wide", 
-    page_title="File Import - FAIR MS Library Curation Editor", 
+    page_title="File Import (.mgf) - FAIR MS Library Curation Editor", 
     #page_icon="assets/favicon.ico",
     menu_items={
         'Get Help': 'https://github.com/mzmine/biohack23_p15',
@@ -12,8 +14,8 @@ st.set_page_config(
     }
 )
 
-st.markdown("## File Import")
-st.markdown("Please select an Excel file to upload. The file should contain one or more sheets. Each sheet should contain sample columns, detailing factors of each individual sample (rows). Lipid identities are the column headers of the non-sample columns, quantities should be reported in the cells.")
+st.markdown("## File Import (.mgf)")
+st.markdown("Please select an mgf to upload.")
 
 uploaded_file = st.file_uploader("Choose a file", )
 if uploaded_file is not None:
@@ -30,34 +32,27 @@ if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is 
         else:
             st.session_state['datasets'] = datasets
         
-        xl = pd.ExcelFile(uploaded_file)
-        sheets = xl.sheet_names
-        for sheet in sheets:
-            if sheet not in datasets:
-                df = pd.read_excel(uploaded_file, sheet_name=sheet)
-                datasets[sheet] = df
+        spectra = list(load_from_mgf(uploaded_file))
+        df_spectra = pd.DataFrame({"spectrum": spectra})
 
-        st.markdown("## Preview Sheets")
-        sheet_selector = st.selectbox(
-                "Select a sheet",
-                sheets
-            )
-        if sheet_selector is not None and sheet_selector in datasets:
-            rowsMetricColumn, columnsMetricColumn = st.columns(2)
-            with rowsMetricColumn:
-                st.metric('Rows', datasets[sheet_selector].shape[0])
-            with columnsMetricColumn:
-                st.metric('Columns', datasets[sheet_selector].shape[1])
-            st.write(datasets[sheet_selector])
+        
+        # make dataframe for metadata
+        def extract_metadata(df, keys):
+            for key in keys:
+                df[key] = df["spectrum"].apply(lambda x: x.get(key))
 
-        st.markdown("## Select Sheets as Datasets")
-        selected_sheets = st.multiselect(
-            'Each selected sheet will be converted to a dataset',
-            sheets,
-            sheets
-        )
-        st.session_state['datasets'] = datasets
-        st.session_state['selected_sheets'] = selected_sheets
 
-        if 'datasets' not in st.session_state:
-            st.session_state['datasets'] = []
+        extract_metadata(df_spectra, df_spectra["spectrum"][0].metadata.keys())
+
+        st.markdown("## Preview Information")
+
+        st.metric('Detected how many spectra', len(df_spectra))
+
+        st.write(df_spectra)
+
+     
+        st.session_state['df_spectra'] = df_spectra
+        st.session_state['len_spectra'] = len(df_spectra)
+
+        if 'df_spectra' not in st.session_state:
+            st.session_state['df_spectra'] = []
