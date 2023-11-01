@@ -1,18 +1,21 @@
 from matchms.importing import load_spectra
+from matchms.filtering.SpectrumProcessor import SpectrumProcessor
 
 class LibraryHandler:
     """Stores the 3 different types of spectra. Correct, repaired, wrong.
     Has internal organization using spectrum ids"""
 
     def __init__(self, f, pipeline):
-        self.spectra = load_spectra(f)
+        #todo modify default pipeline 
+        metadata_field_harmonization = SpectrumProcessor(predefined_pipeline="default")
+        self.spectra = metadata_field_harmonization.process_spectrums(load_spectra(f))
         self.pipeline = pipeline
         self.spectra_dictionary = {
             'valid': None, #[id1, id2,...]
             'repaired': None, #[id1:[modifications],..]
             'invalid': None #also a dictionary
         }
-        self.modifications = []
+        self.modifications = {} #todo change to Modifications class
 
     def clean_and_validate_spectrum(self, spectrum_id):
         spectrum = self.spectra[spectrum_id]
