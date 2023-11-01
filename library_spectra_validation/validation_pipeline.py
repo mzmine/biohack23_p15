@@ -23,6 +23,10 @@ class Modification:
         self.logging_message = logging_message
         self.validated_by_user = validated_by_user
 
+class RequirementFailure:
+    def __init__(self, metadata_field, logging_message):
+        self.metadata_field = metadata_field
+        self.logging_message = logging_message       
 
 def find_modifications(spectrum_old, spectrum_new, logging_message: str):
     """Checks which modifications have been made in a filter step"""
@@ -36,7 +40,9 @@ def find_modifications(spectrum_old, spectrum_new, logging_message: str):
                              before=spectrum_old.get(metadata_field),
                              after=spectrum_new(metadata_field),
                              logging_message=logging_message,
-                             validated_by_user=False))
+                             validated_by_user=False,
+                             is_requirement=False))
+    #todo here determine if spectra is valid/invalid/repaired
     return modifications
 
 
@@ -87,5 +93,8 @@ class SpectrumValidator(SpectrumProcessor):
             logging_message = ""
             spectrum_out = filter_func(spectrum)
             if spectrum_out is None:
-                failed_requirements += logging_message
+                fields_changed = fields_checked_by_filter[filter_func.__name__]
+                for field_changed in fields_changed:
+                    failed_requirements.append(RequirementFailure(field_changed,
+                                                                  logging_message))
         return failed_requirements
