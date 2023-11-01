@@ -14,7 +14,6 @@ from matchms.filtering.SpectrumProcessor import SpectrumProcessor
 
 logger = logging.getLogger("matchms")
 
-
 class Modification:
     def __init__(self, metadata_field, before, after, logging_message, validated_by_user):
         self.metadata_field = metadata_field

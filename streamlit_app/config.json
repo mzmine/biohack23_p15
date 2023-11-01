@@ -1,0 +1,20 @@
+{
+    "ontologies":  {
+        "NCIT": "ncit",
+        "MS": "ms",
+        "MSIO": "msio",
+        "UO": "uo",
+        "NCBITaxon": "ncbitaxon",
+        "BTO": "bto",
+        "PRIDE": "pride",
+        "EFO": "efo"
+    },
+    "static_cv_terms": {
+        "MS:1003309": {
+            "term_obo_id": "MS:1003309",
+            "cv": "MS",
+            "name": "Goslin",
+            "value": null
+        }
+    }
+}
