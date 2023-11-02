@@ -50,20 +50,15 @@ with st.sidebar:
     st.markdown("## Datasets")
     if 'datasets' not in st.session_state or st.session_state['datasets'] == {}:
         st.warning("Please upload a file to begin!")
-    if 'selected_sheets' not in st.session_state or st.session_state['selected_sheets'] == {}:
-        st.warning("Please select a dataset to begin!")
+    #if 'selected_sheets' not in st.session_state or st.session_state['selected_sheets'] == {}:
+        #st.warning("Please select a dataset to begin!")
     # with st.spinner("Loading..."):
     #     time.sleep(5)
     # st.success("Done!")
-    if 'datasets' in st.session_state and st.session_state['datasets'] != {}:
-        for key in st.session_state['selected_sheets']:
-            with st.expander(key):
-                datasets = st.session_state['datasets']
-                rowsMetricColumn, columnsMetricColumn = st.columns(2)
-                with rowsMetricColumn:
-                    st.metric('Rows', datasets[key].shape[0])
-                with columnsMetricColumn:
-                    st.metric('Columns', datasets[key].shape[1])
+    if 'df_spectra' in st.session_state and st.session_state['df_spectra'] != {}:
+
+        df_spectra = st.session_state['df_spectra']
+        st.metric('Detected how many spectra', len(df_spectra))
                 # if st.button("Edit", key=key):
                 #     selected_sheet = key
                 # if key in datasets_metadata:
