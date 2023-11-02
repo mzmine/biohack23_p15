@@ -9,19 +9,26 @@ Add index handling - when a spectrum is processed, its id is added to the corres
 """
 
 import logging
-from typing import Iterable, List, Optional, Union
+from typing import Iterable, List, Optional, Union, Tuple
 from matchms.filtering.SpectrumProcessor import SpectrumProcessor
+from matchms import Spectrum
 
 logger = logging.getLogger("matchms")
+
 
 class Modification:
     def __init__(self, metadata_field, before, after, logging_message, validated_by_user):
         self.metadata_field = metadata_field
         self.before = before
         self.after = after
-        # self.original =
         self.logging_message = logging_message
         self.validated_by_user = validated_by_user
+
+
+class RequirementFailure:
+    def __init__(self, metadata_field, logging_message):
+        self.metadata_field = metadata_field
+        self.logging_message = logging_message       
 
 
 def find_modifications(spectrum_old, spectrum_new, logging_message: str):
@@ -34,7 +41,7 @@ def find_modifications(spectrum_old, spectrum_new, logging_message: str):
             modifications.append(
                 Modification(metadata_field=metadata_field,
                              before=spectrum_old.get(metadata_field),
-                             after=spectrum_new(metadata_field),
+                             after=spectrum_new.get(metadata_field),
                              logging_message=logging_message,
                              validated_by_user=False))
     return modifications
@@ -50,7 +57,7 @@ class SpectrumRepairer(SpectrumProcessor):
                          processing_report=None):
         raise AttributeError("process spectrum is not a valid method of SpectrumValidator")
 
-    def process_spectrum_store_modifications(self, spectrum) -> List[Modification]:
+    def process_spectrum_store_modifications(self, spectrum) -> Tuple[List[Modification], Spectrum]:
         if not self.filters:
             raise TypeError("No filters to process")
         modifications = []
@@ -64,21 +71,31 @@ class SpectrumRepairer(SpectrumProcessor):
             if spectrum_out is None:
                 raise AttributeError("SpectrumRepairer is only expected to repair spectra, not set to None")
             spectrum = spectrum_out
-        return modifications
+        return modifications, spectrum
 
 
 class SpectrumValidator(SpectrumProcessor):
     def __init__(self):
-        # todo add the fields each requirement checks.
-        fields_checked_by_filter = {filter_name: [fields_checked]}
+        self.fields_checked_by_filter = {
+            "require_precursor_mz": ["precursor_mz"],
+            "require_valid_annotation": ["smiles", "inchi", "inchikey"],
+            "require_correct_ionmode": ["ionmode", "adduct", "charge"],
+            # "require_parent_mass_match_smiles": ["smiles", "parent_mass"]
+        }
+        # todo require adduct, precursor mz and parent mass match.
+        # todo add all the checks for formatting. That everything is filled and of the expected format.
         super().__init__(predefined_pipeline=None,
-                         additional_filters=list(fields_checked_by_filter.keys()))
-
+                         additional_filters=("require_precursor_mz",
+                                             "require_valid_annotation",
+                                             ("require_correct_ionmode", {"ion_mode_to_keep": "both"}),
+                                             # ("require_parent_mass_match_smiles", {'mass_tolerance': 0.1}),
+                                             ))
+        # todo add require parent mass match smiles after matchms release.
     def process_spectrum(self, spectrum,
                          processing_report=None):
         raise AttributeError("process spectrum is not a valid method of SpectrumValidator")
 
-    def process_spectrum_store_failed_filters(self, spectrum) -> List[Modification]:
+    def process_spectrum_store_failed_filters(self, spectrum) -> List[RequirementFailure]:
         if not self.filters:
             raise TypeError("No filters to process")
         failed_requirements = []
@@ -87,5 +104,8 @@ class SpectrumValidator(SpectrumProcessor):
             logging_message = ""
             spectrum_out = filter_func(spectrum)
             if spectrum_out is None:
-                failed_requirements += logging_message
+                fields_changed = self.fields_checked_by_filter[filter_func.__name__]
+                for field_changed in fields_changed:
+                    failed_requirements.append(RequirementFailure(field_changed,
+                                                                  logging_message))
         return failed_requirements
