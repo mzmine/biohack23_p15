@@ -62,9 +62,9 @@ class LibraryHandler:
                 self.validated_spectra.remove(spectrum_id)
 
     def return_user_validation_info(self, spectrum_id):
-        '''
+        """
         Returns all info related to spectrum_id
-        '''
+        """
         assert spectrum_id in self.nonvalidated_spectra
 
         modifications = self.modifications[spectrum_id]
@@ -136,18 +136,18 @@ class LibraryHandler:
         self.update_spectra_quality_lists(spectrum_id)
 
     def user_metadata_change(self, field_name, user_input, spectrum_id):
-        '''
-        This function takes user defined metadata and rewrites the required field in spectra
-        The info on user-defined modifications is added to modifications dictionary and mandatory 
+        """This function takes user defined metadata and rewrites the required field in spectra
+        The info on user-defined modifications is added to modifications dictionary and mandatory
         validation is rerun.
-        '''
-        self.spectra[spectrum_id].set(field_name, user_input) #todo this is correct, fix everywhere
-        #todo add user-defined modification to modifications list
-        self.modifications[spectrum_id].append("User-defined modification in the field " +
-                                               field_name + 
-                                               ". Value changed to " +
-                                               user_input)
+        """
+        # Add a user defined modification
+        self.modifications[spectrum_id].append(
+            Modification(metadata_field=field_name, before=self.spectra[spectrum_id].get(field_name),
+                         after=user_input, logging_message="Manual change", validated_by_user=True))
+        self.spectra[spectrum_id].set(field_name, user_input)
         self.failed_requirements[spectrum_id] = self.spectrum_validator.process_spectrum_store_failed_filters(self.spectra[spectrum_id])
+        self.update_spectra_quality_lists(spectrum_id)
+
 
     def user_rerun_repair(self, spectrum_id, rerun: bool):
         '''
