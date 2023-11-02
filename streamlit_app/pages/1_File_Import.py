@@ -4,6 +4,7 @@ import streamlit as st
 import pandas as pd
 from matchms.importing import load_from_mgf
 from tempfile import NamedTemporaryFile
+from library_spectra_validation.library_handler import LibraryHandler
 
 
 st.set_page_config(
@@ -44,6 +45,13 @@ if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is 
     with open(file=mgf_file, mode="wb") as f:
         f.write(uploaded_file.getbuffer())
 
+    # load spectra from mgf, TODO: replace with SpectralLibrary implementation and import
+    # we will receive a list of spectra metadata (each being a dataframe)
+    # TODO: we can retrieve each spectrum from the SpectralLibrary object
+    # TODO: display forward and backward buttons to page through spectra
+
+    lib_handler = LibraryHandler(f.name)
+
     spectra_temp = load_from_mgf(f.name)
     spectra = list(spectra_temp)
     df_spectra = pd.DataFrame({"spectrum": spectra})
@@ -60,7 +68,7 @@ if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is 
 
     st.metric('Detected how many spectra', len(df_spectra))
 
-    st.write(df_spectra)
+    st.data_editor(df_spectra)# , on_change=user_metadata_change())
 
 
     st.session_state['spectra'] = spectra
