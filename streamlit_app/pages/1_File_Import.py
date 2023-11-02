@@ -63,6 +63,7 @@ if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is 
     st.write(df_spectra)
 
 
+    st.session_state['spectra'] = spectra
     st.session_state['df_spectra'] = df_spectra
     st.session_state['len_spectra'] = len(df_spectra)
 

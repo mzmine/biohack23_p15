@@ -65,3 +65,6 @@ with st.sidebar:
                 #     st.write(datasets_metadata[key].keys())
             # st.write(datasets[dataset_key])
         # st.json(datasets)
+    
+    if 'spectra' in st.session_state:
+        spectra = st.session_state["spectra"]
