@@ -62,6 +62,7 @@ def test_user_metadata_change():
     library_handler.user_metadata_change(spectrum_id=spectrum_id, field_name="smiles", user_input="CCC")
     assert library_handler.spectra[spectrum_id].get("smiles") == "CCC"
 
+
 def test_return_():
     library_handler = LibraryHandler("./examples/test_case_correct.mgf")
     spectrum_id = 0

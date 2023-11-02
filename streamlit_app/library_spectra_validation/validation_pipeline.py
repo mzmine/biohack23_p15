@@ -18,7 +18,6 @@ logger = logging.getLogger("matchms")
 METADATA_FIELDS_OF_INTEREST = ["parent_mass", "precursor_mz", "adduct", "smiles",
                                 "compound_name", "inchi", "inchikey", "charge", "ionmode"]
 
-
 class Modification:
     def __init__(self, metadata_field, before, after, logging_message, validated_by_user):
         self.metadata_field = metadata_field

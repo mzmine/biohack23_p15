@@ -11,6 +11,15 @@ Use python venv to use defined dependencies.
     python -m venv venv
     source venv/bin/activate
 
+
+### windows
+	1. cd C:/Users/rfm848
+	2. python -m venv venv
+	3. .\venv\Scripts\activate.bat
+	4. Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser 
+    5. .\venv\Scripts\activate.ps1
+
+
 to activate the virtual environment.
 
 You can then use the provided requirements.txt to populate the required dependencies in your virtual environment.
