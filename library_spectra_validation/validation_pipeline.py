@@ -80,7 +80,7 @@ class SpectrumValidator(SpectrumProcessor):
             "require_precursor_mz": ["precursor_mz"],
             "require_valid_annotation": ["smiles", "inchi", "inchikey"],
             "require_correct_ionmode": ["ionmode", "adduct", "charge"],
-            "require_parent_mass_match_smiles": ["smiles", "parent_mass"]
+            # "require_parent_mass_match_smiles": ["smiles", "parent_mass"]
         }
         # todo require adduct, precursor mz and parent mass match.
         # todo add all the checks for formatting. That everything is filled and of the expected format.
@@ -88,9 +88,9 @@ class SpectrumValidator(SpectrumProcessor):
                          additional_filters=("require_precursor_mz",
                                              "require_valid_annotation",
                                              ("require_correct_ionmode", {"ion_mode_to_keep": "both"}),
-                                             ("require_parent_mass_match_smiles", {'mass_tolerance': 0.1}),
+                                             # ("require_parent_mass_match_smiles", {'mass_tolerance': 0.1}),
                                              ))
-
+        # todo add require parent mass match smiles after matchms release.
     def process_spectrum(self, spectrum,
                          processing_report=None):
         raise AttributeError("process spectrum is not a valid method of SpectrumValidator")
