@@ -1,10 +1,10 @@
+from library_spectra_validation.library_handler import LibraryHandler
 import os
 
 import streamlit as st
 import pandas as pd
 from matchms.importing import load_from_mgf
 from tempfile import NamedTemporaryFile
-from library_spectra_validation.library_handler import LibraryHandler
 
 
 st.set_page_config(

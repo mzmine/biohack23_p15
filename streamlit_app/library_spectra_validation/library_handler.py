@@ -1,7 +1,7 @@
 from matchms.importing import load_spectra
 from matchms.filtering.SpectrumProcessor import SpectrumProcessor
-from filters import PRIMARY_FILTERS
-from validation_pipeline import Modification, SpectrumRepairer, SpectrumValidator
+from library_spectra_validation.filters import PRIMARY_FILTERS
+from library_spectra_validation.validation_pipeline import Modification, SpectrumRepairer, SpectrumValidator
 
 class LibraryHandler:
     """Stores the 3 different types of spectra. Correct, repaired, wrong.
