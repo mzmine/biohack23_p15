@@ -1,7 +1,8 @@
 from matchms.importing import load_spectra
 from matchms.filtering.SpectrumProcessor import SpectrumProcessor
 from filters import PRIMARY_FILTERS
-from validation_pipeline import Modification, SpectrumRepairer, SpectrumValidator
+from validation_pipeline import METADATA_FIELDS_OF_INTEREST, Modification, SpectrumRepairer, SpectrumValidator
+import pandas as pd
 
 class LibraryHandler:
     """Stores the 3 different types of spectra. Correct, repaired, wrong.
@@ -69,8 +70,10 @@ class LibraryHandler:
 
         modifications = self.modifications[spectrum_id]
         failed_requirements = self.failed_requirements[spectrum_id]
-
-        return modifications, failed_requirements, self.spectra[spectrum_id]
+        metadata = pd.DataFrame(self.spectra[spectrum_id].metadata, index=["Value"])
+        metadata = metadata.T
+        metadata = metadata.loc[metadata.index.isin(METADATA_FIELDS_OF_INTEREST)]
+        return modifications, failed_requirements, metadata
 
     def approve_repair(self, spectrum_id, field_name):
         """Accepts every modification done to a field_name"""
@@ -157,7 +160,5 @@ class LibraryHandler:
         if rerun: #todo do we even need it??
             self.modifications[spectrum_id] = self.spectrum_repairer.process_spectrum_store_modifications(self.spectra[spectrum_id])
             self.failed_requirements[spectrum_id] = self.spectrum_validator.process_spectrum_store_failed_filters(self.spectra[spectrum_id])
-
-
     
         
