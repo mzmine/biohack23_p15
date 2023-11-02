@@ -15,6 +15,8 @@ from matchms import Spectrum
 
 logger = logging.getLogger("matchms")
 
+METADATA_FIELDS_OF_INTEREST = ["parent_mass", "precursor_mz", "adduct", "smiles",
+                                "compound_name", "inchi", "inchikey", "charge", "ionmode"]
 
 class Modification:
     def __init__(self, metadata_field, before, after, logging_message, validated_by_user):
@@ -34,9 +36,7 @@ class RequirementFailure:
 def find_modifications(spectrum_old, spectrum_new, logging_message: str):
     """Checks which modifications have been made in a filter step"""
     modifications = []
-    metadata_fields_to_check = ["parent_mass", "precursor_mz", "adduct", "smiles",
-                                "compound_name", "inchi", "inchikey", "charge", "ionmode"]
-    for metadata_field in metadata_fields_to_check:
+    for metadata_field in METADATA_FIELDS_OF_INTEREST:
         if spectrum_old.get(metadata_field) != spectrum_new.get(metadata_field):
             modifications.append(
                 Modification(metadata_field=metadata_field,
