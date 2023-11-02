@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 import pandas as pd
 from matchms.importing import load_from_mgf
@@ -29,7 +31,7 @@ if uploaded_file is not None:
 
 if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is not None:
     print("Uploaded file:", st.session_state['uploaded_file'])
-    #uploaded_file = st.session_state['uploaded_file']
+    uploaded_file = st.session_state['uploaded_file']
     with st.spinner('Loading data...'):
         datasets = {}
         if 'datasets' in st.session_state:
@@ -37,32 +39,32 @@ if 'uploaded_file' in st.session_state and st.session_state['uploaded_file'] is 
         else:
             st.session_state['datasets'] = datasets
 
-    with NamedTemporaryFile(dir='.', suffix='.mgf', mode = "wb") as f:
+    mgf_file = os.path.join(st.session_state['working_dir'], uploaded_file.name)
+
+    with open(file=mgf_file, mode="wb") as f:
         f.write(uploaded_file.getbuffer())
-        f.close()
-        spectra_temp = load_from_mgf(f.name) 
-        #spectra_temp = load_from_mgf(uploaded_file, "wb")
-        spectra = list(spectra_temp)
-        df_spectra = pd.DataFrame({"spectrum": spectra})
 
+    spectra_temp = load_from_mgf(f.name)
+    spectra = list(spectra_temp)
+    df_spectra = pd.DataFrame({"spectrum": spectra})
         
-        # make dataframe for metadata
-        def extract_metadata(df, keys):
-            for key in keys:
-                df[key] = df["spectrum"].apply(lambda x: x.get(key))
+    # make dataframe for metadata
+    def extract_metadata(df, keys):
+        for key in keys:
+            df[key] = df["spectrum"].apply(lambda x: x.get(key))
 
 
-        extract_metadata(df_spectra, df_spectra["spectrum"][0].metadata.keys())
+    extract_metadata(df_spectra, df_spectra["spectrum"][0].metadata.keys())
 
-        st.markdown("## Preview Information")
+    st.markdown("## Preview Information")
 
-        st.metric('Detected how many spectra', len(df_spectra))
+    st.metric('Detected how many spectra', len(df_spectra))
 
-        st.write(df_spectra)
+    st.write(df_spectra)
 
-     
-        st.session_state['df_spectra'] = df_spectra
-        st.session_state['len_spectra'] = len(df_spectra)
 
-        if 'df_spectra' not in st.session_state:
-            st.session_state['df_spectra'] = []
+    st.session_state['df_spectra'] = df_spectra
+    st.session_state['len_spectra'] = len(df_spectra)
+
+    if 'df_spectra' not in st.session_state:
+        st.session_state['df_spectra'] = []

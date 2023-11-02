@@ -55,7 +55,7 @@ with st.sidebar:
     # with st.spinner("Loading..."):
     #     time.sleep(5)
     # st.success("Done!")
-    if 'df_spectra' in st.session_state and st.session_state['df_spectra'] != {}:
+    if 'df_spectra' in st.session_state:
 
         df_spectra = st.session_state['df_spectra']
         st.metric('Detected how many spectra', len(df_spectra))
