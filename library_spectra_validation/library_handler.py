@@ -78,47 +78,63 @@ class LibraryHandler:
         for modification in self.modifications[spectrum_id]:
             if modification.metadata_field == field_name:
                 modification.validated_by_user = True
+        self.update_spectra_quality_lists(spectrum_id)
 
     def approve_all_repairs(self, spectrum_id):
         """Accepts all modifications done for a spectrum"""
         for modification in self.modifications[spectrum_id]:
             modification.validated_by_user = True
+        self.update_spectra_quality_lists(spectrum_id)
 
-    # def decline_last_repair(self, spectrum_id, field_name):
-    #     """Undo the last modification made to a field"""
-    #     for modification in self.modifications[spectrum_id]:
-    #         # Checks if it is the correct metadata field and if it was the last changed made
-    #         if modification.metadata_field == field_name and modification.after == self.spectra[spectrum_id].get(field_name):
-    #             # todo remove modification from modifications
-    #             # todo update spectrum.
-    #     # Declines last repair
+    def decline_last_repair(self, spectrum_id, field_name):
+        """Undo the last modification made to a field"""
+        for mod_idx, modification in enumerate(self.modifications[spectrum_id]):
+            # Checks if it is the correct metadata field and if it was the last changed made
+            if modification.metadata_field == field_name and modification.after == self.spectra[spectrum_id].get(field_name):
+                # undo change
+                spectrum = self.spectra[spectrum_id]
+                spectrum.set(field_name, modification.before)
+                self.spectra[spectrum_id] = spectrum
+                # remove the modification from the list of modifications
+                del self.modifications[spectrum_id][mod_idx]
+                # todo run validation after.
 
-        pass
-    def user_approve_repair(self, field_name, approved_all: bool, rejected_all: bool, spectrum_id):
-        '''
-        This function allows user to accept or decline all or part of modifications
-        '''
-        modifications = self.modifications[spectrum_id]
-        if approved_all:
-            for modification in modifications:
-                if modification.metadata_field == field_name:
-                    # self.modifications[spectrum_id].pop(modification) #todo test this!!
-                    self.modifications[spectrum_id].validated_by_user = True
-        #if user rejects the changes
-        #todo implement the case when user rejects not all changes
-        elif rejected_all:
-            for modification in modifications:
-                #todo should we use before/original/first modification
-                self.spectra[spectrum_id].get(modification.metadata_field).set(modification.before)
-            modifications.pop(spectrum_id)
-            self.failed_requirements[spectrum_id] = self.spectrum_validator.process_spectrum_store_failed_filters(self.spectra[spectrum_id])
-            self.update_spectra_lists(spectrum_id)
-        else: 
-            #todo implement!!!!
-            #only the last one
-            return None
+    def decline_all_repairs_on_a_field(self, spectrum_id, field_name):
+        """Undoes all the repairs for a specific field.
 
-    
+        This is achieved by iteratively removing the last added repair"""
+        nr_of_modifications_to_field = len([modification for modification in self.modifications[spectrum_id]
+                                            if modification.metadata_field == field_name])
+        # Removes all the modifications until the last one was removed.
+        for _ in range(nr_of_modifications_to_field):
+            self.decline_last_repair(spectrum_id, field_name)
+            # todo run validation after.
+
+    def decline_all_repairs_spectrum(self, spectrum_id):
+        """Undoes all modifications made to a spectrum"""
+        while len(self.modifications[spectrum_id]) > 0:
+            for mod_idx, modification in enumerate(self.modifications[spectrum_id]):
+                field_name = modification.metadata_field
+                # Checks if it was the last changed made
+                if modification.after == self.spectra[spectrum_id].get(field_name):
+                    # undo change
+                    spectrum = self.spectra[spectrum_id]
+                    spectrum.set(field_name, modification.before)
+                    self.spectra[spectrum_id] = spectrum
+                    # remove the modification from the list of modifications
+                    del self.modifications[spectrum_id][mod_idx]
+
+    def decline_wrapper(self, spectrum_id, field_name, only_last_repair: bool):
+        if field_name is None:
+            self.decline_all_repairs_spectrum(spectrum_id)
+        elif only_last_repair:
+            self.decline_last_repair(spectrum_id, field_name)
+        else:
+            self.decline_all_repairs_on_a_field(spectrum_id, field_name)
+
+        self.failed_requirements[spectrum_id] = self.spectrum_validator.process_spectrum_store_failed_filters(self.spectra[spectrum_id])
+        self.update_spectra_quality_lists(spectrum_id)
+
     def user_metadata_change(self, field_name, user_input, spectrum_id):
         '''
         This function takes user defined metadata and rewrites the required field in spectra
