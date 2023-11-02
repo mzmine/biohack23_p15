@@ -51,11 +51,13 @@ class LibraryHandler:
                 valid_spectrum = False
 
         if valid_spectrum is True:
-            self.validated_spectra.append(spectrum_id)
+            if spectrum_id not in self.validated_spectra:
+                self.validated_spectra.append(spectrum_id)
             if spectrum_id in self.nonvalidated_spectra:
                 self.nonvalidated_spectra.remove(spectrum_id)
         else:
-            self.nonvalidated_spectra.append(spectrum_id)
+            if spectrum_id not in self.nonvalidated_spectra:
+                self.nonvalidated_spectra.append(spectrum_id)
             if spectrum_id in self.validated_spectra:
                 self.validated_spectra.remove(spectrum_id)
 
